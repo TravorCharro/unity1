@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool isJumping = false;
 
 	public Animator animator;
+	public bool disableJump = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -25,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 	{
 		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 		animator.SetFloat("speed", Math.Abs(horizontalMove)*Time.fixedDeltaTime);
-		if (Input.GetButtonDown("Jump"))
+		if (Input.GetButtonDown("Jump") && !disableJump)
 		{
 			isJumping = true;
 			animator.SetBool("jumping", true);

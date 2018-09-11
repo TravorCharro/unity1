@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class Player : MonoBehaviour
@@ -9,7 +11,8 @@ public class Player : MonoBehaviour
 	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
 	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
 
-	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+	public int health = 2;
+	const float k_GroundedRadius = .02f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
 	private Rigidbody2D m_Rigidbody2D;
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
@@ -31,11 +34,15 @@ public class Player : MonoBehaviour
 			OnLandEvent = new UnityEvent();
 	}
 
+	private void OnDrawGizmosSelected()
+	{
+		Gizmos.DrawSphere(m_GroundCheck.position, k_GroundedRadius);
+	}
+
 	private void FixedUpdate()
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
-
 		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
 		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
 		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
@@ -83,6 +90,23 @@ public class Player : MonoBehaviour
 		}
 	}
 
+
+	public void Damage(int value)
+	{
+		if (value > 0)
+		{
+			health = health - value;	
+			this.gameObject.GetComponent<Animator>().Play("Damage");
+		}
+	}
+
+	public void Heal(int value)
+	{
+		if (value > 0)
+		{
+			health = health + value;	
+		}
+	}
 
 	private void Flip()
 	{
