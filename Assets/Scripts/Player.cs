@@ -12,9 +12,12 @@ public class Player : MonoBehaviour
 	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
 
 	public int health = 2;
+<<<<<<< HEAD
 	public int lives = 2;
 	public int carrots = 0;
 	private Vector2 spawnPos;
+=======
+>>>>>>> ae402e6589aa49e722f0a4d594a9f8fec413546d
 	const float k_GroundedRadius = .02f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
 	private Rigidbody2D m_Rigidbody2D;
@@ -40,11 +43,14 @@ public class Player : MonoBehaviour
 			OnLandEvent = new UnityEvent();
 	}
 
+<<<<<<< HEAD
 	private void Start()
 	{
 		spawnPos = this.transform.position;
 	}
 
+=======
+>>>>>>> ae402e6589aa49e722f0a4d594a9f8fec413546d
 	private void OnDrawGizmosSelected()
 	{
 		Gizmos.DrawSphere(m_GroundCheck.position, k_GroundedRadius);
@@ -54,10 +60,13 @@ public class Player : MonoBehaviour
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
+<<<<<<< HEAD
 		if (startBlinking)
 		{
 			SpriteBlinkingEffect();
 		}
+=======
+>>>>>>> ae402e6589aa49e722f0a4d594a9f8fec413546d
 		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
 		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
 		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
@@ -110,6 +119,7 @@ public class Player : MonoBehaviour
 	{
 		if (value > 0)
 		{
+<<<<<<< HEAD
 			if (!noDamage)
 			{
 				health = health - value;
@@ -118,6 +128,10 @@ public class Player : MonoBehaviour
 				this.gameObject.GetComponent<Animator>().Play("Damage");
 				noDamage = true;
 			}
+=======
+			health = health - value;	
+			this.gameObject.GetComponent<Animator>().Play("Damage");
+>>>>>>> ae402e6589aa49e722f0a4d594a9f8fec413546d
 		}
 	}
 
@@ -129,6 +143,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
+<<<<<<< HEAD
 	void Death()
 	{
 		if (lives > 0)
@@ -160,6 +175,8 @@ public class Player : MonoBehaviour
 		noDamage = false;
 	}
 
+=======
+>>>>>>> ae402e6589aa49e722f0a4d594a9f8fec413546d
 	private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
