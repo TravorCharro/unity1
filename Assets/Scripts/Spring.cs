@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Spring : MonoBehaviour
 {
-	public float force = 500;
+	public float force = 255;
 	// Use this for initialization
 	void Start () {
 		
@@ -23,7 +23,6 @@ public class Spring : MonoBehaviour
 			other.GetComponent<Animator>().SetBool("jumping", true);
 			other.GetComponent<Rigidbody2D>().velocity = new Vector2(0,0);
 			other.GetComponent<Rigidbody2D>().AddForce(new Vector2(0f, force));
-			Debug.Log(other.GetComponent<Rigidbody2D>().velocity.y);
 		}
 	}
 }

@@ -24,6 +24,11 @@ public class Enemy_Mouse : MonoBehaviour {
 		}
 
 		GetComponent<SpriteRenderer>().flipX = flipped;
+		
+		if (transform.position.y < -200)
+		{
+			Destroy(this.gameObject);
+		}
 	}
 	
 	private void OnCollisionEnter2D(Collision2D other)

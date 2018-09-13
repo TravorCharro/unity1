@@ -2,6 +2,8 @@
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -12,7 +14,6 @@ public class Player : MonoBehaviour
 	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
 
 	public int health = 2;
-	public int lives = 2;
 	public int carrots = 0;
 	private Vector2 spawnPos;
 	const float k_GroundedRadius = .02f; // Radius of the overlap circle to determine if grounded
@@ -23,6 +24,17 @@ public class Player : MonoBehaviour
 	private bool noDamage, startBlinking;
 	private float spriteBlinkingTotalTimer, spriteBlinkingTimer;
 	public float noDamageTime = 3f;
+	public Sprite[] healthSprites = new Sprite[4];
+	public float timer;
+	public int levelMaxTime = 120;
+	public int totalScore;
+	public GameObject gameOverObj;
+	private bool gameEnded;
+	public GameObject timerObj;
+
+	public UnityEngine.UI.Text carrotsText;
+	public UnityEngine.UI.Image healthImage;
+	
 
 	[Header("Events")]
 	[Space]
@@ -35,7 +47,6 @@ public class Player : MonoBehaviour
 	private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
-
 		if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
 	}
@@ -43,6 +54,9 @@ public class Player : MonoBehaviour
 	private void Start()
 	{
 		spawnPos = this.transform.position;
+		timerObj.GetComponent<Text>().text = "Time: "+levelMaxTime;
+		healthImage.sprite = healthSprites[health];
+		carrotsText.text = carrots.ToString();
 	}
 
 	private void OnDrawGizmosSelected()
@@ -52,6 +66,24 @@ public class Player : MonoBehaviour
 
 	private void FixedUpdate()
 	{
+		if (timer < levelMaxTime)
+		{
+			timer += Time.deltaTime;
+			timerObj.GetComponent<Text>().text = "Time: "+(levelMaxTime-Convert.ToInt32(timer)).ToString();
+		}
+		if (timer >= levelMaxTime && !gameEnded)
+		{
+
+			gameOver();
+		}
+
+		if (health <= 0 && !gameEnded)
+		{
+			gameOver();
+		}
+
+		healthImage.sprite = healthSprites[health];
+		carrotsText.text = carrots.ToString();
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
 		if (startBlinking)
@@ -112,11 +144,18 @@ public class Player : MonoBehaviour
 		{
 			if (!noDamage)
 			{
-				health = health - value;
-				Invoke("DisableNoDamage", noDamageTime);
-				startBlinking = true;
-				this.gameObject.GetComponent<Animator>().Play("Damage");
-				noDamage = true;
+				if (health >= 0)
+				{
+					healthImage.sprite = healthSprites[health];
+					this.gameObject.GetComponent<Animator>().Play("Damage");
+				}
+				if (health > 0)
+				{
+					health = health - value;
+					Invoke("DisableNoDamage", noDamageTime);
+					startBlinking = true;
+					noDamage = true;
+				}
 			}
 		}
 	}
@@ -125,34 +164,35 @@ public class Player : MonoBehaviour
 	{
 		if (value > 0)
 		{
-			health = health + value;	
+			this.Health = health + value;	
 		}
 	}
 
-	void Death()
+	public void gameOver(string setText = "")
 	{
-		if (lives > 0)
+		gameEnded = true;
+		this.GetComponent<PlayerMovement>().enabled = false;
+		totalScore += carrots * 1000;
+		totalScore += (levelMaxTime - Convert.ToInt32(timer)) * 10;
+		if (setText.Length == 0)
 		{
-			this.GetComponent<Animator>().Play("Death");
-			this.GetComponent<PlayerMovement>().enabled = false;
-			lives--;
-			Invoke("Respawn", 5f);
+			if (timer < levelMaxTime)
+			{
+				gameOverObj.transform.GetComponentInChildren<Text>().text = "Game Over!\nYou Died!";
+			}
+			else
+			{
+				gameOverObj.transform.GetComponentInChildren<Text>().text = "Game Over!\nTime is Over!";
+			}
 		}
 		else
 		{
-			this.GetComponent<Animator>().Play("Death");
-			this.GetComponent<PlayerMovement>().enabled = false;
+			gameOverObj.transform.GetComponentInChildren<Text>().text = setText;
 		}
-	}
 
-	void Respawn()
-	{
-		this.GetComponent<PlayerMovement>().enabled = true;
-	}
-
-	void gameOver()
-	{
-		
+		gameOverObj.transform.GetComponentInChildren<Text>().text += "\nScore: "+totalScore;
+		timerObj.SetActive(false);
+		gameOverObj.gameObject.SetActive(true);
 	}
 	
 	void DisableNoDamage()
@@ -197,4 +237,26 @@ public class Player : MonoBehaviour
 			}
 		}
 	}
+
+	public int Health
+	{
+		get { return health; }
+		set
+		{
+			if (health < 3 && health >0)
+			{
+				health = value;
+				healthImage.sprite = healthSprites[health - 1];
+			}
+		}
+	}
+	public int Carrots
+	{
+		get { return carrots; }
+		set
+		{
+			carrotsText.text = value.ToString();
+		}
+	}
+
 }

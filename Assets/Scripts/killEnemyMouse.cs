@@ -24,6 +24,7 @@ public class killEnemyMouse : MonoBehaviour
 			transform.parent.GetComponent<Enemy_Mouse>().killed = true;
 			transform.parent.GetComponent<SpriteRenderer>().flipY = true;
 			Destroy(transform.parent.GetComponent<CapsuleCollider2D>());
+			other.GetComponent<Player>().totalScore += 500;
 		}
 	}
 }

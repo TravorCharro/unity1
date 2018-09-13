@@ -23,6 +23,7 @@ public class killEnemy : MonoBehaviour {
 			transform.parent.GetComponent<Enemy>().killed = true;
 			transform.parent.GetComponent<SpriteRenderer>().flipY = true;
 			Destroy(transform.parent.GetComponent<BoxCollider2D>());
+			other.GetComponent<Player>().totalScore += 2000;
 		}
 	}
 }
