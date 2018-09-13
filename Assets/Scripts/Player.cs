@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class Player : MonoBehaviour
@@ -9,11 +11,18 @@ public class Player : MonoBehaviour
 	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
 	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
 
-	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+	public int health = 2;
+	public int lives = 2;
+	public int carrots = 0;
+	private Vector2 spawnPos;
+	const float k_GroundedRadius = .02f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
 	private Rigidbody2D m_Rigidbody2D;
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
+	private bool noDamage, startBlinking;
+	private float spriteBlinkingTotalTimer, spriteBlinkingTimer;
+	public float noDamageTime = 3f;
 
 	[Header("Events")]
 	[Space]
@@ -31,11 +40,24 @@ public class Player : MonoBehaviour
 			OnLandEvent = new UnityEvent();
 	}
 
+	private void Start()
+	{
+		spawnPos = this.transform.position;
+	}
+
+	private void OnDrawGizmosSelected()
+	{
+		Gizmos.DrawSphere(m_GroundCheck.position, k_GroundedRadius);
+	}
+
 	private void FixedUpdate()
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
-
+		if (startBlinking)
+		{
+			SpriteBlinkingEffect();
+		}
 		// The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
 		// This can be done using layers instead but Sample Assets will not overwrite your project settings.
 		Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
@@ -84,6 +106,60 @@ public class Player : MonoBehaviour
 	}
 
 
+	public void Damage(int value)
+	{
+		if (value > 0)
+		{
+			if (!noDamage)
+			{
+				health = health - value;
+				Invoke("DisableNoDamage", noDamageTime);
+				startBlinking = true;
+				this.gameObject.GetComponent<Animator>().Play("Damage");
+				noDamage = true;
+			}
+		}
+	}
+
+	public void Heal(int value)
+	{
+		if (value > 0)
+		{
+			health = health + value;	
+		}
+	}
+
+	void Death()
+	{
+		if (lives > 0)
+		{
+			this.GetComponent<Animator>().Play("Death");
+			this.GetComponent<PlayerMovement>().enabled = false;
+			lives--;
+			Invoke("Respawn", 5f);
+		}
+		else
+		{
+			this.GetComponent<Animator>().Play("Death");
+			this.GetComponent<PlayerMovement>().enabled = false;
+		}
+	}
+
+	void Respawn()
+	{
+		this.GetComponent<PlayerMovement>().enabled = true;
+	}
+
+	void gameOver()
+	{
+		
+	}
+	
+	void DisableNoDamage()
+	{
+		noDamage = false;
+	}
+
 	private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
@@ -93,5 +169,32 @@ public class Player : MonoBehaviour
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+	}
+
+	private void SpriteBlinkingEffect()
+	{
+		spriteBlinkingTotalTimer += Time.deltaTime;
+		if (spriteBlinkingTotalTimer >= noDamageTime)
+		{
+			startBlinking = false;
+			spriteBlinkingTotalTimer = 0.0f;
+			this.gameObject.GetComponent<SpriteRenderer>().enabled = true; // according to 
+			//your sprite
+			return;
+		}
+
+		spriteBlinkingTimer += Time.deltaTime;
+		if (spriteBlinkingTimer >= 0.2f)
+		{
+			spriteBlinkingTimer = 0.0f;
+			if (this.gameObject.GetComponent<SpriteRenderer>().enabled == true)
+			{
+				this.gameObject.GetComponent<SpriteRenderer>().enabled = false; //make changes
+			}
+			else
+			{
+				this.gameObject.GetComponent<SpriteRenderer>().enabled = true; //make changes
+			}
+		}
 	}
 }
