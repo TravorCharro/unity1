@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +18,8 @@ public class EndBird : MonoBehaviour {
 	{
 		if (other.transform.CompareTag("Player"))
 		{
-				other.GetComponent<Player>().gameOver("You Win!");
+			other.GetComponent<Player>().totalScore += (other.GetComponent<Player>().levelMaxTime - Convert.ToInt32(other.GetComponent<Player>().timer)) * 10;
+			other.GetComponent<Player>().gameOver("You Win!");
 		}
 	}
 

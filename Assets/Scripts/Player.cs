@@ -173,7 +173,6 @@ public class Player : MonoBehaviour
 		gameEnded = true;
 		this.GetComponent<PlayerMovement>().enabled = false;
 		totalScore += carrots * 1000;
-		totalScore += (levelMaxTime - Convert.ToInt32(timer)) * 10;
 		if (setText.Length == 0)
 		{
 			if (timer < levelMaxTime)
